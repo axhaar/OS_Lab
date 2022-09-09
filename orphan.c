@@ -1,14 +1,20 @@
 #include<stdio.h>
 #include<unistd.h>
-int main(){
+#include<stdlib.h>
+
+int main()
+{
 	int x=0;
 	 x=fork();
-	if(x!=0){
+	if(x!=0)
+	{
 		printf("parent\n");
-    exit(0);
+    		exit(0);
 	}
-	else{
+	else
+	{
 		printf("child\n");
-		sleep(2);
+		sleep(5);
 	}
+	return 0;
 }
