@@ -1,94 +1,100 @@
 #include<stdio.h>
-#include<stdlib.h>
-
-struct Process {
-    int pid,at,bt,ct,wt,tat,rt,st;
+#include <stdlib.h>
+#include<limits.h>
+struct Process{
+int pid;
+int at;
+int bt;
+int ct;
+int tat;
+int wt;
+int rt;
+int st;
 };
-
-void sort(struct Process *p,int n){
-    for(int i=0;i<n-1;i++){
-        for(int j=i+1;j<n;j++){
-            if(p[i].at>p[j].at){
-                struct Process temp=p[i];
-                p[i]=p[j];
-                p[j]=temp;
-            }
-        }
-    }
+int compare (const void *p1, const void *p2)
+{
+int a=((struct Process *)p1)->at;
+int b=((struct Process *)p2)->at;
+if (a<b)
+return -1;
+else
+return 1;
 }
-
-int FINDPOS(int t,int n,struct Process *p,int *rem){
-    int minPos=-1,minVal=10000;
-    for(int i=0;i<n;i++){
-        if(rem[i]>0 && p[i].at<=t && rem[i]<minVal){
-            minVal=rem[i];
-            minPos=i;
-        }
-    }
-    return minPos;
+int main()
+{
+int n,min=INT_MAX,pos=-1,t=0,prev=0,comp=0,idle=0;
+ int swt=0,stat=0;
+float awt=0,atat=0;
+printf("Enter the number of processes: ");
+scanf("%d",&n);
+struct Process p[n];
+int rem[n];
+for(int i=0;i<n;i++)
+{
+printf("For Process %d ",i+1);
+p[i].pid=i+1;
+printf("Enter the value of AT and BT: ");
+scanf("%d %d",&p[i].at,&p[i].bt);
 }
-
-int main(){
-    int n;
-    scanf("%d",&n);
-    
-    struct Process p[n];
-    int rem[n];
-    
-    for(int i=0;i<n;i++){
-        scanf("%d%d",&p[i].at,&p[i].bt);
-        p[i].pid=i+1;
-        p[i].st=-1;
-        rem[i]=p[i].bt;
-    }
-    sort(p,n);
-    int idealTime=0,cycleLength=0,totalTAT=0,totalWT=0,totalRT=0;
-    float cpuUti=0,throughPut=0,avgTAT=0,avgWT=0,avgRT=0;
-    
-    int com=0,t=0;
-    
-    while(com<n){
-        int pos=FINDPOS(t,n,p,rem);
-        if(pos==-1){
-            idealTime++;
-            t++;
-            continue;
-        }
-        if(p[pos].st==-1){
-            p[pos].st=t;
-        }
-        rem[pos]--;
-        
-        if(rem[pos]==0){
-            com++;
-            p[pos].ct=t+1;
-            p[pos].tat=p[pos].ct-p[pos].at;
-            p[pos].wt=p[pos].tat-p[pos].bt;
-            p[pos].rt=p[pos].st-p[pos].at;
-            
-            totalTAT+=p[pos].tat;
-            totalWT+=p[pos].wt;
-            totalRT+=p[pos].rt;
-        }
-        t++;
-    }
-    
-    cycleLength=t;
-    cpuUti=((float)(cycleLength-idealTime)/(float)cycleLength)*100;
-    throughPut=(float)n/(float)cycleLength;
-    avgTAT=(float)totalTAT/(float)n;
-    avgWT=(float)totalWT/(float)n;
-    avgRT=(float)totalRT/(float)n;
-    
-    printf("PID\tAT\tBT\tCT\tTAT\tWT\tRT\n");
-    for(int i=0;i<n;i++){
-        printf("p-%d\t%d\t%d\t%d\t%d\t%d\t%d\n",p[i].pid,p[i].at,p[i].bt,p[i].ct,p[i].tat,p[i].wt,p[i].rt);
-    }
-    
-    printf("%f\n",avgTAT);
-    printf("%f\n",avgWT);
-    printf("%f\n",avgRT);
-    printf("%f\n",cpuUti);
-    printf("%f\n",throughPut);
-    
+qsort ((void *)p, n, sizeof(struct Process), compare); 
+ 
+for(int i=0;i<n;i++){
+rem[i]=p[i].bt;
+p[i].tat=p[i].wt=0;
+}
+while(comp<n){
+for(int i=0;i<n;i++)
+{
+if(p[i].at<=t&& rem[i]<=min&&rem[i]>0)
+{
+min=rem[i];
+pos=i;
+}
+}
+if(pos!=-1)
+{
+if(rem[pos]==p[pos].bt)
+{
+p[pos].st=t;
+idle+=p[pos].st-prev;
+}
+t++;
+prev=t;
+rem[pos]--;
+if(rem[pos]==0)
+{
+comp++;
+p[pos].ct=t;
+p[pos].tat=p[pos].ct-p[pos].at;
+p[pos].wt=p[pos].tat-p[pos].bt; 
+p[pos].rt=p[pos].st-p[pos].at;
+} 
+}
+else
+{
+t++;
+}
+min=rem[pos];
+if(min==0)
+min=INT_MAX;
+}
+float cpu_ut=0,thro=0,cyclelen=0;
+cyclelen=p[n-1].ct-p[0].st;
+cpu_ut=((cyclelen-idle)/cyclelen)*100;
+thro=n/cyclelen;
+for(int i=0;i<n;i++){
+swt+=p[i].wt;
+stat+=p[i].tat;
+} 
+awt=swt/(float)(n);
+atat=stat/(float)(n);
+printf("PID\tAT\tBT\tCT\tTAT\tWT\tRT\n");
+for(int i=0;i<n;i++){
+printf("P%d\t%d\t%d\t%d\t%d\t%d\t%d\n",p[i].pid,p[i].at,p[i].
+bt,p[i].ct,p[i].tat,p[i].wt,p[i].rt);
+} 
+printf("Sum of Waiting Time: %d\nAvergae Waiting Time: %6.3f\n",swt,awt);
+printf("Sum of Turn Around Time: %d\nAverage Turn Around Time: %6.3f\n",stat,atat);
+printf("CPU Utilization: %6.2f\nThroughput: %6.3f\n",cpu_ut,thro);
+return 0; 
 }
