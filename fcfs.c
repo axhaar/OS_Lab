@@ -73,7 +73,7 @@ int main()
 	atat=stat/n;
 
 	cyclelen=p[n-1].ct-p[0].st;
-	cpu_ut=(cyclelen-idle)*100;
+	cpu_ut=((cyclelen-idle)/cyclelen)*100;
 	thro=(float)n/cyclelen;
     
 	printf("\nPID\tAT\tBT\tCT\tTAT\tWT\tRT\n");
